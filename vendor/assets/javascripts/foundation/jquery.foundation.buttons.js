@@ -1,6 +1,8 @@
 ;(function ($, window, undefined) {
   'use strict';
 
+  var addedToDocument = false;
+
   $.fn.foundationButtons = function (options) {
     var $doc = $(document),
         config = $.extend({
@@ -20,47 +22,51 @@
         buttons.add($('> span.' + config.activeClass, buttons)).removeClass(config.activeClass);
       };
 
-    // Prevent event propagation on disabled buttons
-    $doc.on('click.fndtn', '.button.disabled', function (e) {
-      e.preventDefault();
-    });
+    if (!addedToDocument) {
+      addedToDocument = true;
+
+      // Prevent event propagation on disabled buttons
+      $doc.on('click.fndtn', '.button.disabled', function (e) {
+        e.preventDefault();
+      });
+
+      // reset other active states
+      $doc.on('click.fndtn', '.button.dropdown:not(.split), .button.dropdown.split span', function (e) {
+        var $el = $(this),
+            button = $el.closest('.button.dropdown'),
+            dropdown = $('> ul', button);
+
+          // If the click is registered on an actual link or on button element then do not preventDefault which stops the browser from following the link
+          if ($.inArray(e.target.nodeName, ['A', 'BUTTON'])){
+            e.preventDefault();
+          }
+
+        // close other dropdowns
+        setTimeout(function () {
+          closeDropdowns(config.dropdownAsToggle ? '' : dropdown);
+          dropdown.toggleClass('show-dropdown');
+
+          if (config.dropdownAsToggle) {
+            resetToggles(button);
+            $el.toggleClass(config.activeClass);
+          }
+        }, 0);
+      });
+
+      // close all dropdowns and deactivate all buttons
+      $doc.on('click.fndtn', 'body, html', function (e) {
+        if (undefined == e.originalEvent) { return; }
+        // check original target instead of stopping event propagation to play nice with other events
+        if (!$(e.originalEvent.target).is('.button.dropdown:not(.split), .button.dropdown.split span')) {
+          closeDropdowns();
+          if (config.dropdownAsToggle) {
+            resetToggles();
+          }
+        }
+      });
+    }
 
     $('.button.dropdown > ul', this).addClass('no-hover');
-
-    // reset other active states
-    $doc.on('click.fndtn', '.button.dropdown:not(.split), .button.dropdown.split span', function (e) {
-      var $el = $(this),
-          button = $el.closest('.button.dropdown'),
-          dropdown = $('> ul', button);
-          
-        // If the click is registered on an actual link or on button element then do not preventDefault which stops the browser from following the link
-        if ($.inArray(e.target.nodeName, ['A', 'BUTTON'])){
-          e.preventDefault();
-        }
-
-      // close other dropdowns
-      setTimeout(function () {
-        closeDropdowns(config.dropdownAsToggle ? '' : dropdown);
-        dropdown.toggleClass('show-dropdown');
-
-        if (config.dropdownAsToggle) {
-          resetToggles(button);
-          $el.toggleClass(config.activeClass);
-        }
-      }, 0);
-    });
-
-    // close all dropdowns and deactivate all buttons
-    $doc.on('click.fndtn', 'body, html', function (e) {
-      if (undefined == e.originalEvent) { return; }
-      // check original target instead of stopping event propagation to play nice with other events
-      if (!$(e.originalEvent.target).is('.button.dropdown:not(.split), .button.dropdown.split span')) {
-        closeDropdowns();
-        if (config.dropdownAsToggle) {
-          resetToggles();
-        }
-      }
-    });
 
     // Positioning the Flyout List
     var normalButtonHeight  = $('.button.dropdown:not(.large):not(.small):not(.tiny):visible', this).outerHeight() - 1,
