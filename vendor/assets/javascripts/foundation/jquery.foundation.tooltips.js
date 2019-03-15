@@ -175,13 +175,17 @@
       show : function ($target) {
         var $tip = methods.getTip($target);
 
-        methods.reposition($target, $tip, $target.attr('class'));
-        $tip.fadeIn(150);
+        if ($tip && $tip.length > 0) {
+          methods.reposition($target, $tip, $target.attr('class'));
+          $tip.fadeIn(150);
+        }
       },
       hide : function ($target) {
         var $tip = methods.getTip($target);
 
-        $tip.fadeOut(150);
+        if ($tip && $tip.length > 0) {
+          $tip.fadeOut(150);
+        }
       },
       reload : function () {
         var $self = $(this);
