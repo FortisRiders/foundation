@@ -114,7 +114,15 @@
            * @type {Function}
            * @default function(){}
            */
-          closed: $.noop
+          closed: $.noop,
+          /**
+           * Override the calculated inline CSS value for the modal's 'top'.
+           *
+           * @property overrideTop
+           * @type {Integer}
+           * @default undefined
+           */
+          overrideTop: undefined
         }
     ;
     //
@@ -302,7 +310,8 @@
             //
             // Set the 'top' property to the document scroll minus the calculated top offset.
             //
-            cssOpts.open.top = $doc.scrollTop() - topOffset;
+            var modalTop = options.overrideTop !== undefined ? options.overrideTop : $doc.scrollTop() - topOffset;
+            cssOpts.open.top = modalTop;
             //
             // Flip the opacity to 0.
             //
@@ -362,7 +371,8 @@
             // Yes, were executing 'fade'.
             // Okay, let's set the modal properties.
             //
-            cssOpts.open.top = $doc.scrollTop() + topMeasure;
+            var modalTop = options.overrideTop !== undefined ? options.overrideTop : $doc.scrollTop() + topMeasure;
+            cssOpts.open.top = modalTop;
             //
             // Flip the opacity to 0.
             //
@@ -422,7 +432,8 @@
             //
             // Set the top property.
             //
-            cssOpts.open.top = $doc.scrollTop() + topMeasure;
+            var modalTop = options.overrideTop !== undefined ? options.overrideTop : $doc.scrollTop() + topMeasure;
+            cssOpts.open.top = modalTop;
             //
             // Set the opacity property to full opacity, since we're not fading (animating).
             //
@@ -491,11 +502,12 @@
             //
             // Yes, okay, let's set the animation properties.
             //
+            var modalTop = options.overrideTop !== undefined ? options.overrideTop : $doc.scrollTop() - topOffset;
             modal.animate( {
               //
               // Set the top property to the document scrollTop minus calculated topOffset.
               //
-              "top":  $doc.scrollTop() - topOffset + 'px',
+              "top": modalTop + 'px',
               //
               // Fade the modal out, by using the opacity property.
               //
@@ -685,7 +697,7 @@
         if (iframe.length > 0) {
           iframe.data("src", iframe.attr("src"));
           iframe.attr("src", "");
-          video.fadeOut(100);  
+          video.fadeOut(100);
         }
       }
 
